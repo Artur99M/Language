@@ -1,0 +1,6 @@
+[submodule "Onegin"]
+	path = Onegin
+	url = git@github.com:Artur99M/Onegin.git
+[submodule "TREE_EXP"]
+	path = TREE_EXP
+	url = git@github.com:Artur99M/TREE_EXP.git
