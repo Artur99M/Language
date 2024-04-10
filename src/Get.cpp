@@ -10,7 +10,7 @@
 
 void SkipSpace (char** s);
 double Syntax_Error (char** s, const char func[5]);
-bool ismathfunc (char** s, char* mathfunc, const char func[5]);
+bool ismathfunc (char** s, const char mathfunc[10], const char func[5]);
 #define isfunc(s, mathfunc) ismathfunc (s, mathfunc, __func__)
 
 #define SyntaxError() Syntax_Error(s, __func__)
@@ -170,7 +170,7 @@ double GetL (char** s)
 {
     PRINT_DEBUG ("start\n");
     SkipSpace(s);
-    double val = GetP (s);
+    double val = GetM (s);
     SkipSpace(s);
     PRINT_DEBUG ("**s = %c\n", **s);
 
@@ -179,7 +179,7 @@ double GetL (char** s)
         char op = **s;
         (*s)++;
         SkipSpace(s);
-        double val2 = GetP(s);
+        double val2 = GetM(s);
         SkipSpace(s);
         val = pow (val, val2);
     }
@@ -187,7 +187,7 @@ double GetL (char** s)
     if (isfunc (s, "log"))
     {
         SkipSpace(s);
-        double val2 = GetN (s);
+        double val2 = GetM (s);
         if (val == 1 || val <= 0 || val2 <= 0)
             return SyntaxError();
         val = log (val2) / log (val);
@@ -196,7 +196,7 @@ double GetL (char** s)
     return val;
 }
 
-bool ismathfunc (char** s, char* mathfunc, const char func[5])
+bool ismathfunc (char** s, const char mathfunc[10], const char func[5])
 {
     PRINT_DEBUG ("mathfunc = %s\n", mathfunc);
     for (int i = 0; i < strlen (mathfunc); i++)
@@ -204,8 +204,29 @@ bool ismathfunc (char** s, char* mathfunc, const char func[5])
         PRINT_DEBUG ("**s = %c\n", **s);
         if (**s == mathfunc[i])
             (*s)++;
-        else return Syntax_Error (s, func);
+        // else return Syntax_Error (s, func);
     }
 
     return true;
+}
+
+double GetM (char** s)
+{
+    PRINT_DEBUG ("start\n");
+    double val = 0; // GetP (s);
+    SkipSpace(s);
+    PRINT_DEBUG ("**s = %c\n", **s);
+    char* olds = *s;
+    for (int i = 0; i < nfuncs; i++)
+    {
+        if (isfunc (s, math_funcs[i].name))
+        {
+            val = GetP(s);
+            return (*(math_funcs[i].func))(val);
+        }
+        else *s = olds;
+    }
+
+    val = GetP(s);
+    return val;
 }
