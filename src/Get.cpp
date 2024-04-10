@@ -2,49 +2,45 @@
 #include <stdio.h>
 #include "../DEBUG/def.h"
 
-#define SyntaxError();                                                       \
-    {                                                                        \
-    fprintf(stderr, "ERROR: \'%c\' in text in func \'%s\'\n", *s, __func__); \
-    return 0;                                                                \
-    }
-
-#define require(c) (*s == c) ? s++ : SyntaxError();
+#define require(c) (**s == c) ? *s++ : SyntaxError();
 #define notation 10
 
-char* s = nullptr;
-void SkipSpace ();
+void SkipSpace (char** s);
+double Syntax_Error (char** s, const char func[5]);
+
+#define SyntaxError() Syntax_Error(s, __func__)
 
 double GetG (char* str)
 {
     PRINT_DEBUG ("\n");
-    s = str;
+    char* s = str;
 
     PRINT_DEBUG ("s = \"%s\"\n", s);
-    SkipSpace();
-    double val = GetE();
-    SkipSpace();
+    SkipSpace(&s);
+    double val = GetE(&s);
+    SkipSpace(&s);
     PRINT_DEBUG ("*s = %c\n", *s);
 
     if (*s == '$') s++;
-    else {SyntaxError();}
+    else return Syntax_Error(&s, __func__);
     return val;
 }
 
-double GetE ()
+double GetE (char** s)
 {
     PRINT_DEBUG ("\n");
-    SkipSpace();
-    double val = GetT ();
-    SkipSpace();
-    PRINT_DEBUG ("*s = %c\n", *s);
+    SkipSpace(s);
+    double val = GetT (s);
+    SkipSpace(s);
+    PRINT_DEBUG ("**s = %c\n", **s);
 
-    while (*s == '+' || *s == '-')
+    while (**s == '+' || **s == '-')
     {
-        char op = *s;
-        s++;
-        SkipSpace();
-        double val2 = GetT();
-        SkipSpace();
+        char op = **s;
+        (*s)++;
+        SkipSpace(s);
+        double val2 = GetT(s);
+        SkipSpace(s);
         if (op == '+') val += val2;
         else           val -= val2;
     }
@@ -52,21 +48,21 @@ double GetE ()
     return val;
 }
 
-double GetT()
+double GetT(char** s)
 {
     PRINT_DEBUG ("\n");
-    SkipSpace();
-    double val = GetP ();
-    SkipSpace();
-    PRINT_DEBUG ("*s = %c\n", *s);
+    SkipSpace(s);
+    double val = GetP (s);
+    SkipSpace(s);
+    PRINT_DEBUG ("**s = %c\n", **s);
 
-    while (*s == '*' || *s == '/')
+    while (**s == '*' || **s == '/')
     {
-        char op = *s;
-        s++;
-        SkipSpace();
-        double val2 = GetT();
-        SkipSpace();
+        char op = **s;
+        (*s)++;
+        SkipSpace(s);
+        double val2 = GetT(s);
+        SkipSpace(s);
         if (op == '*') val *= val2;
         else           val /= val2;
     }
@@ -74,72 +70,86 @@ double GetT()
     return val;
 }
 
-double GetP()
+double GetP(char** s)
 {
     PRINT_DEBUG ("\n");
-    SkipSpace();
-    PRINT_DEBUG ("*s = %c\n", *s);
-    if (*s == '(')
+    SkipSpace(s);
+    PRINT_DEBUG ("**s = %c\n", **s);
+    if (**s == '(')
     {
-        s++;
-        double val = GetE();
-        SkipSpace();
-        PRINT_DEBUG ("*s = %c\n", *s);
-        if (*s == ')') s++;
-        else {SyntaxError();}
+        (*s)++;
+        double val = GetE(s);
+        SkipSpace(s);
+        PRINT_DEBUG ("**s = %c\n", **s);
+        if (**s == ')') (*s)++;
+        else return SyntaxError();
         return val;
     }
     else
     {
-        SkipSpace();
-        double val = GetN();
-        SkipSpace();
+        SkipSpace(s);
+        double val = GetN(s);
+        SkipSpace(s);
         PRINT_DEBUG ("val = %lf\n", val);
         return val;
     }
 }
 
-double GetN()
+double GetN(char** s)
 {
     PRINT_DEBUG ("\n");
     double val = 0;
-    SkipSpace();
-    const char* olds = s;
-    while ('0' <= *s && *s <= '9')
+    SkipSpace(s);
+    const char* olds = *s;
+    int sign = 1;
+    if (**s == '-')
     {
-        PRINT_DEBUG ("*s = %c\n", *s);
-        val = val * notation + (*s - '0');
-        s++;
+        (*s)++;
+        sign = -1;
+    }
+    while ('0' <= **s && **s <= '9')
+    {
+        PRINT_DEBUG ("**s = %c\n", **s);
+        val = val * notation + (**s - '0');
+        (*s)++;
     }
     PRINT_DEBUG ("val = %lf\n", val);
-    if (olds == s) {
-        SyntaxError();
-        PRINT_DEBUG ("bark\n");
-    }
-    olds = s;
-    if (*s == '.' || *s == ',')
+    if (olds == *s)
+        return SyntaxError();
+    if (**s == '.' || **s == ',')
     {
-        PRINT_DEBUG ("*s = %c\n", *s);
-        s++;
-        unsigned int exp10 = 10;
-        while ('0' <= *s && *s <= '9')
+        PRINT_DEBUG ("**s = %c\n", **s);
+        (*s)++;
+        olds = *s;
+        int exp10 = 10;
+        while ('0' <= **s && **s <= '9')
         {
-            PRINT_DEBUG ("*s = %c\n", *s);
-            val += (*s - '0') / exp10;
-            s++;
-            exp10 /= 10;
+            PRINT_DEBUG ("**s = %c\n", **s);
+            double x = 0;
+            x += (**s - '0');
+            x /= exp10;
+            val += x;
+            PRINT_DEBUG ("val = %lf\n", val);
+            exp10 *= 10;
+            (*s)++;
         }
-        if (olds == s) SyntaxError();
+        if (olds == *s) return SyntaxError();
 
     }
     PRINT_DEBUG ("val = %lf\n", val);
 
 
-    return val;
+    return val * sign;
 }
 
-void SkipSpace ()
+void SkipSpace (char** s)
 {
-    while (*s == ' ' || *s == '\t')
-        s++;
+    while (**s == ' ' || **s == '\t')
+        (*s)++;
+}
+
+double Syntax_Error (char** s, const char func[5])
+{
+    fprintf(stderr, "ERROR: \'%c\' in text in func \'%s\'\n", **s, func);
+    return 0;
 }

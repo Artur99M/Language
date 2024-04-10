@@ -12,7 +12,7 @@ int main()
     for (size_t i = 0; i < txt.numlines - 1; i++)
     {
         double x = GetG(txt.line[i].str);
-        printf ("%0.0lf\n", x);
+        printf ("%0.3lf\n", x);
     }
 
 }
