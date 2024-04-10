@@ -8,7 +8,11 @@ int main()
 
     PRINT_DEBUG ("bark\n");
     text txt = read ("data/file.txt");
-    double x = GetG(txt.alltext);
-    printf ("%0.0lf\n", x);
+    PRINT_DEBUG ("txt.nimlines = %lu\n", txt.numlines);
+    for (size_t i = 0; i < txt.numlines - 1; i++)
+    {
+        double x = GetG(txt.line[i].str);
+        printf ("%0.0lf\n", x);
+    }
 
 }

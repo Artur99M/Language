@@ -12,6 +12,7 @@
 #define notation 10
 
 char* s = nullptr;
+void SkipSpace ();
 
 double GetG (char* str)
 {
@@ -19,25 +20,31 @@ double GetG (char* str)
     s = str;
 
     PRINT_DEBUG ("s = \"%s\"\n", s);
+    SkipSpace();
     double val = GetE();
+    SkipSpace();
     PRINT_DEBUG ("*s = %c\n", *s);
 
     if (*s == '$') s++;
-    // else SyntaxError();
+    else {SyntaxError();}
     return val;
 }
 
 double GetE ()
 {
     PRINT_DEBUG ("\n");
+    SkipSpace();
     double val = GetT ();
+    SkipSpace();
     PRINT_DEBUG ("*s = %c\n", *s);
 
     while (*s == '+' || *s == '-')
     {
         char op = *s;
         s++;
+        SkipSpace();
         double val2 = GetT();
+        SkipSpace();
         if (op == '+') val += val2;
         else           val -= val2;
     }
@@ -48,14 +55,18 @@ double GetE ()
 double GetT()
 {
     PRINT_DEBUG ("\n");
+    SkipSpace();
     double val = GetP ();
+    SkipSpace();
     PRINT_DEBUG ("*s = %c\n", *s);
 
     while (*s == '*' || *s == '/')
     {
         char op = *s;
         s++;
+        SkipSpace();
         double val2 = GetT();
+        SkipSpace();
         if (op == '*') val *= val2;
         else           val /= val2;
     }
@@ -66,20 +77,23 @@ double GetT()
 double GetP()
 {
     PRINT_DEBUG ("\n");
+    SkipSpace();
     PRINT_DEBUG ("*s = %c\n", *s);
     if (*s == '(')
     {
         s++;
         double val = GetE();
-        s++;
+        SkipSpace();
         PRINT_DEBUG ("*s = %c\n", *s);
         if (*s == ')') s++;
-        else SyntaxError();
+        else {SyntaxError();}
         return val;
     }
     else
     {
+        SkipSpace();
         double val = GetN();
+        SkipSpace();
         PRINT_DEBUG ("val = %lf\n", val);
         return val;
     }
@@ -89,6 +103,7 @@ double GetN()
 {
     PRINT_DEBUG ("\n");
     double val = 0;
+    SkipSpace();
     const char* olds = s;
     while ('0' <= *s && *s <= '9')
     {
@@ -121,4 +136,10 @@ double GetN()
 
 
     return val;
+}
+
+void SkipSpace ()
+{
+    while (*s == ' ' || *s == '\t')
+        s++;
 }
