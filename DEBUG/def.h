@@ -1,5 +1,7 @@
 #ifdef DEBUG
-    #define PRINT_DEBUG(str ...) fprintf(stderr, "DEBUG: " str);
+    #define PRINT_DEBUG(str ...) {                                                           \
+    fprintf(stderr, "DEBUG: %s >>> ", __func__);                                             \
+    fprintf (stderr, str);}
 #else
     #define PRINT_DEBUG(str ...) {};
 #endif

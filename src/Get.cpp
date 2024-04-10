@@ -15,12 +15,12 @@ char* s = nullptr;
 
 double GetG (char* str)
 {
-    PRINT_DEBUG ("%s\n", __func__);
+    PRINT_DEBUG ("\n");
     s = str;
 
     PRINT_DEBUG ("s = \"%s\"\n", s);
     double val = GetE();
-    PRINT_DEBUG ("%s >>> *s = %c\n", __func__, *s);
+    PRINT_DEBUG ("*s = %c\n", *s);
 
     if (*s == '$') s++;
     // else SyntaxError();
@@ -29,9 +29,9 @@ double GetG (char* str)
 
 double GetE ()
 {
-    PRINT_DEBUG ("%s\n", __func__);
+    PRINT_DEBUG ("\n");
     double val = GetT ();
-    PRINT_DEBUG ("%s >>> *s = %c\n", __func__, *s);
+    PRINT_DEBUG ("*s = %c\n", *s);
 
     while (*s == '+' || *s == '-')
     {
@@ -47,11 +47,11 @@ double GetE ()
 
 double GetT()
 {
-    PRINT_DEBUG ("%s\n", __func__);
+    PRINT_DEBUG ("\n");
     double val = GetP ();
-    PRINT_DEBUG ("%s >>> *s = %c\n", __func__, *s);
+    PRINT_DEBUG ("*s = %c\n", *s);
 
-    while (*s == '+' || *s == '-')
+    while (*s == '*' || *s == '/')
     {
         char op = *s;
         s++;
@@ -65,43 +65,51 @@ double GetT()
 
 double GetP()
 {
-    PRINT_DEBUG ("%s\n", __func__);
-    PRINT_DEBUG ("%s >>> *s = %c\n", __func__, *s);
+    PRINT_DEBUG ("\n");
+    PRINT_DEBUG ("*s = %c\n", *s);
     if (*s == '(')
     {
         s++;
         double val = GetE();
         s++;
-        PRINT_DEBUG ("%s >>> *s = %c\n", __func__, *s);
+        PRINT_DEBUG ("*s = %c\n", *s);
         if (*s == ')') s++;
         else SyntaxError();
         return val;
     }
-    else return GetN();
+    else
+    {
+        double val = GetN();
+        PRINT_DEBUG ("val = %lf\n", val);
+        return val;
+    }
 }
 
 double GetN()
 {
-    PRINT_DEBUG ("%s\n", __func__);
+    PRINT_DEBUG ("\n");
     double val = 0;
     const char* olds = s;
     while ('0' <= *s && *s <= '9')
     {
-        PRINT_DEBUG ("%s >>> *s = %c\n", __func__, *s);
+        PRINT_DEBUG ("*s = %c\n", *s);
         val = val * notation + (*s - '0');
         s++;
     }
-    PRINT_DEBUG ("%s >>> val = %lf\n", __func__, val);
-    if (olds == s) SyntaxError();
+    PRINT_DEBUG ("val = %lf\n", val);
+    if (olds == s) {
+        SyntaxError();
+        PRINT_DEBUG ("bark\n");
+    }
     olds = s;
     if (*s == '.' || *s == ',')
     {
-        PRINT_DEBUG ("%s >>> *s = %c\n", __func__, *s);
+        PRINT_DEBUG ("*s = %c\n", *s);
         s++;
         unsigned int exp10 = 10;
         while ('0' <= *s && *s <= '9')
         {
-            PRINT_DEBUG ("%s >>> *s = %c\n", __func__, *s);
+            PRINT_DEBUG ("*s = %c\n", *s);
             val += (*s - '0') / exp10;
             s++;
             exp10 /= 10;
@@ -109,7 +117,7 @@ double GetN()
         if (olds == s) SyntaxError();
 
     }
-    PRINT_DEBUG ("%s >>> val = %lf\n", __func__, val);
+    PRINT_DEBUG ("val = %lf\n", val);
 
 
     return val;
