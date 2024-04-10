@@ -2,6 +2,7 @@
 #include "../include/Get.h"
 #include "../include/read.h"
 #include "../DEBUG/def.h"
+#include "../Onegin/header/txtdtor.h"
 
 int main()
 {
@@ -14,5 +15,7 @@ int main()
         double x = GetG(txt.line[i].str);
         printf ("%0.3lf\n", x);
     }
+    txtDtor (&txt);
+
 
 }
