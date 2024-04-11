@@ -5,6 +5,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 #include "../TREE_EXP/Tree1/header/tree.h"
 #include "../TREE_EXP/header/TREE_EXP.h"
 #include "../TREE_EXP/header/Diff.h"
@@ -115,7 +116,10 @@ Node* GetP(char** s)
 
 Node* GetN(char** s)
 {
-    PRINT_DEBUG ("\n");
+    PRINT_DEBUG ("start\n");
+    Node* V = GetV (s);
+    if (V != nullptr)
+        return V;
     double val = 0;
     SkipSpace(s);
     const char* olds = *s;
@@ -238,4 +242,16 @@ Node* GetM (char** s)
     }
 
     return GetP(s);
+}
+
+Node* GetV(char** s)
+{
+    SkipSpace (s);
+    if (isalpha (**s))
+    {
+        Node* val = CreateNodeVariable (**s, nullptr, nullptr);
+        (*s)++;
+        return val;
+    }
+    return nullptr;
 }

@@ -11,6 +11,7 @@ Node* GetT(char**);
 Node* GetP(char**);
 Node* GetL(char**);
 Node* GetM(char**);
+Node* GetV(char**);
 
 
 struct MATH_FUNC
