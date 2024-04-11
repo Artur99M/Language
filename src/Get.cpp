@@ -199,12 +199,13 @@ double GetL (char** s)
 bool ismathfunc (char** s, const char mathfunc[10], const char func[5])
 {
     PRINT_DEBUG ("mathfunc = %s\n", mathfunc);
+    char* olds = *s;
     for (int i = 0; i < strlen (mathfunc); i++)
     {
         PRINT_DEBUG ("**s = %c\n", **s);
         if (**s == mathfunc[i])
             (*s)++;
-        // else return Syntax_Error (s, func);
+        else {*s = olds; return false; }
     }
 
     return true;
@@ -217,14 +218,25 @@ double GetM (char** s)
     SkipSpace(s);
     PRINT_DEBUG ("**s = %c\n", **s);
     char* olds = *s;
-    for (int i = 0; i < nfuncs; i++)
+    for (int i = 0; i < nfuncs - 1; i++)
     {
         if (isfunc (s, math_funcs[i].name))
         {
-            val = GetP(s);
+            SkipSpace(s);
+            if (**s != '(') return SyntaxError();
+            else // (**s == '(')
+            {
+                (*s)++;
+                val = GetE(s);
+                SkipSpace(s);
+                PRINT_DEBUG ("**s = %c\n", **s);
+                if (**s == ')') (*s)++;
+                else return SyntaxError();
+            }
             return (*(math_funcs[i].func))(val);
         }
         else *s = olds;
+
     }
 
     val = GetP(s);

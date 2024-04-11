@@ -27,5 +27,5 @@ const struct MATH_FUNC math_funcs[] =
     // { "arcsin", asin }, проблема проверки значений
     { "arctg",  atan }
 };
-const int nfuncs = sizeof (math_funcs);
+const int nfuncs = sizeof (math_funcs) / sizeof (MATH_FUNC);
 #endif
