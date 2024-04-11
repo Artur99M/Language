@@ -1,28 +1,32 @@
 #include "../include/Get.h"
 #include "../DEBUG/def.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../TREE_EXP/Tree1/header/tree.h"
+#include "../TREE_EXP/header/TREE_EXP.h"
+#include "../TREE_EXP/header/Diff.h"
+#include "../TREE_EXP/header/SimpleTreeExp.h"
 
 #define require(c) (**s == c) ? *s++ : SyntaxError();
 #define notation 10
 
 void SkipSpace (char** s);
-double Syntax_Error (char** s, const char func[5]);
-bool ismathfunc (char** s, const char mathfunc[10], const char func[5]);
-#define isfunc(s, mathfunc) ismathfunc (s, mathfunc, __func__)
+Node* Syntax_Error (char** s, const char func[5]);
+bool ismathfunc (char** s, const char mathfunc[10]);
 
 #define SyntaxError() Syntax_Error(s, __func__)
 
-double GetG (char* str)
+Node* GetG (char* str)
 {
     PRINT_DEBUG ("\n");
     char* s = str;
 
     PRINT_DEBUG ("s = \"%s\"\n", s);
     SkipSpace(&s);
-    double val = GetE(&s);
+    Node* val = GetE(&s);
     SkipSpace(&s);
     PRINT_DEBUG ("*s = %c\n", *s);
 
@@ -31,11 +35,11 @@ double GetG (char* str)
     return val;
 }
 
-double GetE (char** s)
+Node* GetE (char** s)
 {
     PRINT_DEBUG ("\n");
     SkipSpace(s);
-    double val = GetT (s);
+    Node* val = GetT (s);
     SkipSpace(s);
     PRINT_DEBUG ("**s = %c\n", **s);
 
@@ -44,20 +48,20 @@ double GetE (char** s)
         char op = **s;
         (*s)++;
         SkipSpace(s);
-        double val2 = GetT(s);
+        Node* val2 = GetT(s);
         SkipSpace(s);
-        if (op == '+') val += val2;
-        else           val -= val2;
+        if (op == '+') return CreateNodeOperation (ADD, val, val2);
+        else           return CreateNodeOperation (SUB, val, val2);
     }
 
     return val;
 }
 
-double GetT(char** s)
+Node* GetT(char** s)
 {
     PRINT_DEBUG ("\n");
     SkipSpace(s);
-    double val = GetL (s);
+    Node* val = GetL (s);
     SkipSpace(s);
     PRINT_DEBUG ("**s = %c\n", **s);
 
@@ -66,21 +70,21 @@ double GetT(char** s)
         char op = **s;
         (*s)++;
         SkipSpace(s);
-        double val2 = GetL(s);
+        Node* val2 = GetL(s);
         SkipSpace(s);
-        if (op == '*') val *= val2;
-        else           val /= val2;
+        if (op == '*') return CreateNodeOperation (MUL, val, val2);
+        else           return CreateNodeOperation (DIV, val, val2);
     }
 
     return val;
 }
 
-double GetP(char** s)
+Node* GetP(char** s)
 {
     PRINT_DEBUG ("\n");
     SkipSpace(s);
     PRINT_DEBUG ("**s = %c\n", **s);
-    double val = 0;
+    Node* val = 0;
     int sign = 1;
     if (**s == '-')
     {
@@ -101,24 +105,20 @@ double GetP(char** s)
     {
         val = GetN(s);
         SkipSpace(s);
-        PRINT_DEBUG ("val = %lf\n", val);
+        PRINT_DEBUG ("val = %p\n", val);
     }
 
-    return val * sign;
+    if (sign > 0)
+        return val;
+    else return CreateNodeOperation (SUB, nullptr, val);
 }
 
-double GetN(char** s)
+Node* GetN(char** s)
 {
     PRINT_DEBUG ("\n");
     double val = 0;
     SkipSpace(s);
     const char* olds = *s;
-    int sign = 1;
-    if (**s == '-')
-    {
-        (*s)++;
-        sign = -1;
-    }
     while ('0' <= **s && **s <= '9')
     {
         PRINT_DEBUG ("**s = %c\n", **s);
@@ -151,7 +151,7 @@ double GetN(char** s)
     PRINT_DEBUG ("val = %lf\n", val);
 
 
-    return val * sign;
+    return CNN (val);
 }
 
 void SkipSpace (char** s)
@@ -160,17 +160,17 @@ void SkipSpace (char** s)
         (*s)++;
 }
 
-double Syntax_Error (char** s, const char func[5])
+Node* Syntax_Error (char** s, const char func[5])
 {
     fprintf(stderr, "ERROR: \'%c\' in text in func \'%s\'\n", **s, func);
-    return 0;
+    return nullptr;
 }
 
-double GetL (char** s)
+Node* GetL (char** s)
 {
     PRINT_DEBUG ("start\n");
     SkipSpace(s);
-    double val = GetM (s);
+    Node* val = GetM (s);
     SkipSpace(s);
     PRINT_DEBUG ("**s = %c\n", **s);
 
@@ -179,24 +179,22 @@ double GetL (char** s)
         char op = **s;
         (*s)++;
         SkipSpace(s);
-        double val2 = GetM(s);
+        Node* val2 = GetM(s);
         SkipSpace(s);
-        val = pow (val, val2);
+        return CreateNodeOperation (EXP, val, val2);
     }
 
-    if (isfunc (s, "log"))
+    if (ismathfunc (s, "log"))
     {
         SkipSpace(s);
-        double val2 = GetM (s);
-        if (val == 1 || val <= 0 || val2 <= 0)
-            return SyntaxError();
-        val = log (val2) / log (val);
+        Node* val2 = GetM (s);
+        return CreateNodeOperation (LOG, val, val2);
     }
 
     return val;
 }
 
-bool ismathfunc (char** s, const char mathfunc[10], const char func[5])
+bool ismathfunc (char** s, const char mathfunc[10])
 {
     PRINT_DEBUG ("mathfunc = %s\n", mathfunc);
     char* olds = *s;
@@ -211,34 +209,33 @@ bool ismathfunc (char** s, const char mathfunc[10], const char func[5])
     return true;
 }
 
-double GetM (char** s)
+Node* GetM (char** s)
 {
     PRINT_DEBUG ("start\n");
-    double val = 0; // GetP (s);
+    // double val = 0; // GetP (s);
     SkipSpace(s);
     PRINT_DEBUG ("**s = %c\n", **s);
     char* olds = *s;
     for (int i = 0; i < nfuncs - 1; i++)
     {
-        if (isfunc (s, math_funcs[i].name))
+        if (ismathfunc (s, math_funcs[i].name))
         {
             SkipSpace(s);
             if (**s != '(') return SyntaxError();
             else // (**s == '(')
             {
                 (*s)++;
-                val = GetE(s);
+                Node* val = GetE(s);
                 SkipSpace(s);
                 PRINT_DEBUG ("**s = %c\n", **s);
                 if (**s == ')') (*s)++;
                 else return SyntaxError();
+                return CreateNodeOperation (math_funcs[i].operation, val, nullptr);
             }
-            return (*(math_funcs[i].func))(val);
         }
         else *s = olds;
 
     }
 
-    val = GetP(s);
-    return val;
+    return GetP(s);
 }

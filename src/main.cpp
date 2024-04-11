@@ -3,6 +3,7 @@
 #include "../include/read.h"
 #include "../DEBUG/def.h"
 #include "../Onegin/header/txtdtor.h"
+#include "../TREE_EXP/Tree1/header/tree.h"
 
 int main()
 {
@@ -12,8 +13,8 @@ int main()
     PRINT_DEBUG ("txt.nimlines = %lu\n", txt.numlines);
     for (size_t i = 0; i < txt.numlines - 1; i++)
     {
-        double x = GetG(txt.line[i].str);
-        printf ("%0.3lf\n", x);
+        Node* x = GetG(txt.line[i].str);
+        TreePrint (x);
     }
     txtDtor (&txt);
 
