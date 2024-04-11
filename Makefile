@@ -1,8 +1,8 @@
 CC = g++
 
 FILESFORCOMP = obj/main.o obj/Get.o obj/read.o
-ALLOBJFILES = obj/main.o obj/read.o obj/Get.o TREE_EXP/obj/readfile.o TREE_EXP/obj/tree.o TREE_EXP/obj/Diff.o TREE_EXP/obj/SimpleTreeExp.o Onegin/readtext.o Onegin/txtDtor.o
-ALLCPPFILES = src/main.cpp src/read.cpp src/Get.cpp TREE_EXP/obj/readfile.o TREE_EXP/obj/tree.o TREE_EXP/obj/Diff.o TREE_EXP/obj/SimpleTreeExp.o Onegin/readtext.o Onegin/txtdtor.o
+ALLOBJFILES = obj/main.o obj/read.o obj/Get.o TREE_EXP/obj/readfile.o TREE_EXP/obj/tree.o TREE_EXP/obj/Diff.o TREE_EXP/obj/SimpleTreeExp.o Onegin/readtext.o Onegin/txtDtor.o obj/TeX.o
+ALLCPPFILES = src/main.cpp src/read.cpp src/Get.cpp TREE_EXP/obj/readfile.o TREE_EXP/obj/tree.o TREE_EXP/obj/Diff.o TREE_EXP/obj/SimpleTreeExp.o Onegin/readtext.o Onegin/txtdtor.o src/TeX.cpp
 
 all : $(FILESFORCOMP)
 
@@ -14,6 +14,9 @@ obj/Get.o: src/Get.cpp DEBUG/def.h include/Get.h TREE_EXP/Tree1/header/tree.h TR
 
 obj/read.o: src/read.cpp Onegin/header/readtext.h include/read.h
 	$(CC) -c src/read.cpp -o obj/read.o
+
+obj/TeX.o: src/TeX.cpp include/TeX.h TREE_EXP/Tree1/header/tree.h TREE_EXP/header/TREE_EXP.h
+	$(CC) -c src/TeX.cpp -o obj/TeX.o
 
 
 run:

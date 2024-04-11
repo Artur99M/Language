@@ -4,6 +4,7 @@
 #include "../DEBUG/def.h"
 #include "../Onegin/header/txtdtor.h"
 #include "../TREE_EXP/Tree1/header/tree.h"
+#include "../include/TeX.h"
 
 int main()
 {
@@ -14,7 +15,8 @@ int main()
     for (size_t i = 0; i < txt.numlines - 1; i++)
     {
         Node* x = GetG(txt.line[i].str);
-        TreePrint (x);
+        TEX_PRINT (x, "TeX/TeX.tex");
+        // TreePrint (x);
     }
     txtDtor (&txt);
 
