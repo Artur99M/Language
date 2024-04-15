@@ -12,6 +12,7 @@ Node* GetP(char**);
 Node* GetL(char**);
 Node* GetM(char**);
 Node* GetV(char**);
+Node* GetI(char**);
 
 
 struct MATH_FUNC
@@ -24,13 +25,13 @@ struct MATH_FUNC
 
 const struct MATH_FUNC math_funcs[] =
 {
-    // { "ln",     log }, проблема проверки значений
+    // { "ln",     log, LN }, //проблема проверки значений, к тому же я не выделил отдльный ENUM
     { "sin",    sin, SIN },
     { "cos",    cos, COS },
     { "tg",     tan, TG },
     // { "ctg", ctan }, нет такой функции
-    // { "arcsin", asin }, проблема проверки значений
-    { "arctg",  atan, ARCTG }
+    { "arcsin", asin, ARCSIN }, //проблема проверки значений
+    // { "arctg",  atan, ARCTG }
 };
 const int nfuncs = sizeof (math_funcs) / sizeof (MATH_FUNC);
 #endif

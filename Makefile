@@ -2,7 +2,7 @@ CC = g++
 
 FILESFORCOMP = obj/main.o obj/Get.o obj/read.o TREE_EXP/obj/Diff.o
 ALLOBJFILES = obj/main.o obj/read.o obj/Get.o TREE_EXP/obj/readfile.o TREE_EXP/obj/tree.o TREE_EXP/src/Diff.o TREE_EXP/obj/SimpleTreeExp.o Onegin/readtext.o Onegin/txtDtor.o obj/TeX.o
-ALLCPPFILES = src/main.cpp src/read.cpp src/Get.cpp TREE_EXP/obj/readfile.o TREE_EXP/obj/tree.o TREE_EXP/src/Diff.cpp TREE_EXP/obj/SimpleTreeExp.o Onegin/readtext.o Onegin/txtdtor.o src/TeX.cpp
+ALLCPPFILES = src/main.cpp src/read.cpp src/Get.cpp TREE_EXP/obj/readfile.o TREE_EXP/obj/tree.o TREE_EXP/src/Diff.cpp TREE_EXP/src/SimpleTreeExp.cpp Onegin/readtext.o Onegin/txtdtor.o src/TeX.cpp src/graphviz.cpp
 
 all : $(FILESFORCOMP)
 
@@ -30,5 +30,10 @@ app:
 deb:
 	$(CC) -DDEBUG $(ALLCPPFILES)
 
+dot:
+	dot graphviz/Tree -O
+	dot graphviz/Tree2 -O
+	dot graphviz/Tree3 -O
+
 clean :
-	rm *.out obj/*.o TeX/main.idx TeX/main.ilg TeX/main.ind TeX/main.log TeX/main.out TeX/main.synctex.gz TeX/matlab.aux TeX/main.aux TeX/main.fls TeX/main.fdb TeX/main.fdb_latexmk
+	rm *.out obj/*.o TeX/main.idx TeX/main.log TeX/main.out TeX/main.synctex.gz TeX/matlab.aux TeX/main.aux TeX/main.fls TeX/main.fdb_latexmk TeX/main.ilg TeX/main.ind

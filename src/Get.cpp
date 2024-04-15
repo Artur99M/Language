@@ -24,13 +24,26 @@ Node* GetG (char* str)
 {
     PRINT_DEBUG ("\n");
     char* s = str;
+    Node* val = nullptr;
+    // добавить оператор '='
+    if (val = GetI(&s))
+    {
+        PRINT_DEBUG ("s = \"%s\"\n", s);
+        SkipSpace(&s);
+        val->left = GetE(&s);
+        SkipSpace(&s);
+        PRINT_DEBUG ("*s = %c\n", *s);
+    }
+    else
+    {
+        PRINT_DEBUG ("s = \"%s\"\n", s);
+        SkipSpace(&s);
+        val = GetE(&s);
+        SkipSpace(&s);
+        PRINT_DEBUG ("*s = %c\n", *s);
+    }
 
-    PRINT_DEBUG ("s = \"%s\"\n", s);
-    SkipSpace(&s);
-    Node* val = GetE(&s);
-    SkipSpace(&s);
-    PRINT_DEBUG ("*s = %c\n", *s);
-
+    // TreePrint (val);
     if (*s == '$') s++;
     else return Syntax_Error(&s, __func__);
     return val;
@@ -51,8 +64,8 @@ Node* GetE (char** s)
         SkipSpace(s);
         Node* val2 = GetT(s);
         SkipSpace(s);
-        if (op == '+') return CreateNodeOperation (ADD, val, val2);
-        else           return CreateNodeOperation (SUB, val, val2);
+        if (op == '+') val = CreateNodeOperation (ADD, val, val2);
+        else           val = CreateNodeOperation (SUB, val, val2);
     }
 
     return val;
@@ -73,8 +86,8 @@ Node* GetT(char** s)
         SkipSpace(s);
         Node* val2 = GetL(s);
         SkipSpace(s);
-        if (op == '*') return CreateNodeOperation (MUL, val, val2);
-        else           return CreateNodeOperation (DIV, val, val2);
+        if (op == '*') val = CreateNodeOperation (MUL, val, val2);
+        else           val = CreateNodeOperation (DIV, val, val2);
     }
 
     return val;
@@ -185,14 +198,14 @@ Node* GetL (char** s)
         SkipSpace(s);
         Node* val2 = GetM(s);
         SkipSpace(s);
-        return CreateNodeOperation (EXP, val, val2);
+        val = CreateNodeOperation (EXP, val, val2);
     }
 
     if (ismathfunc (s, "log"))
     {
         SkipSpace(s);
         Node* val2 = GetM (s);
-        return CreateNodeOperation (LOG, val, val2);
+        val = CreateNodeOperation (LOG, val, val2);
     }
 
     return val;
@@ -220,7 +233,7 @@ Node* GetM (char** s)
     SkipSpace(s);
     PRINT_DEBUG ("**s = %c\n", **s);
     char* olds = *s;
-    for (int i = 0; i < nfuncs - 1; i++)
+    for (int i = 0; i < nfuncs; i++)
     {
         if (ismathfunc (s, math_funcs[i].name))
         {
@@ -253,5 +266,32 @@ Node* GetV(char** s)
         (*s)++;
         return val;
     }
+    return nullptr;
+}
+
+Node* GetI (char** s)
+{
+    char* olds = *s;
+
+    PRINT_DEBUG ("start\n");
+    Node* val = nullptr;
+    if (val = GetV (s))
+    {
+        PRINT_DEBUG ("I see variable, **s = %c\n", **s);
+        SkipSpace (s);
+        if (**s == '=')
+        {
+            PRINT_DEBUG ("I see \'=\', **s = %c\n", **s);
+            (*s)++;
+            return CreateNodeOperation (EQUAL, nullptr, val);
+        }
+        else
+        {
+            TreeDtor (val);
+            val = nullptr;
+        }
+    }
+
+    *s = olds;
     return nullptr;
 }

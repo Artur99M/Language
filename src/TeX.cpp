@@ -5,12 +5,13 @@
 #include <string.h>
 #include <stdlib.h>
 const size_t start_size = 100;
+FILE* outfile = fopen ("TeX/TeX.tex", "w");
 
-void TEX_PRINT (const Node* pNode, char* file)
+void TEX_PRINT (const Node* pNode)
 {
     PRINT_DEBUG ("start\n");
     char* str = node_to_str (pNode);
-    FILE* outfile = fopen (file, "w");
+    PRINT_DEBUG ("I print \"%s\"\n", str);
     fprintf (outfile, "\\[%s\\]\n", str);
     free (str);
 }
@@ -26,7 +27,8 @@ char* node_to_str (const Node* pNode)
     {
         case VARIABLE:
             PRINT_DEBUG ("I\'m in VARIABLE\n");
-            str = (char*) calloc (2, sizeof (char));
+            str = (char*) calloc (10, sizeof (char));
+            PRINT_DEBUG ("I find memory\n");
             str[0] = pNode->value.variable;
             break;
         case NUMBER:
@@ -54,12 +56,12 @@ char* node_to_str (const Node* pNode)
                     str = (char*) calloc (size, sizeof (char));
                     strcpy (str, l);
                     PRINT_DEBUG ("1: str = %s\n", str);
-                    free (l);
                     str[size_l] = '+';
-                    PRINT_DEBUG ("3: str = %s\n", str);
+                    PRINT_DEBUG ("2: str = %s\n", str);
                     strncat (str, r, size - 1);
-                    PRINT_DEBUG ("3: str = %s\n", str);
                     free (r);
+                    PRINT_DEBUG ("3: str = %s\n", str);
+                    free (l);
                     PRINT_DEBUG ("4: str = %s\n", str);
                     break;
                 case SUB:
@@ -85,13 +87,13 @@ char* node_to_str (const Node* pNode)
                 case MUL:
                     PRINT_DEBUG ("I\'m seeing operation MUL\n");
                     size_l = strlen (l);
-                    size = size_l + strlen (r) + 5;
+                    size = size_l + strlen (r) + 6;
                     str = (char*) calloc (size, sizeof (char));
                     strcpy (str, l);
-                    free (l);
-                    strncat (str, "\\cdot", size - 1);
+                    // free (l);
+                    strncat (str, "\\cdot ", size - 1);
                     strncat (str, r, size - 1);
-                    free (r);
+                    // free (r);
                     break;
                 case EXP:
                     PRINT_DEBUG ("I\'m seeing operation EXP\n");
@@ -135,7 +137,7 @@ char* node_to_str (const Node* pNode)
                     PRINT_DEBUG ("I\'m seeing operation SIN\n");
                     size = strlen (l) + 18;
                     str = (char*) calloc (size, sizeof (char));
-                    strcpy (str, "\\sin\\left(");
+                    strcat (str, "\\sin\\left(");
                     strncat (str, l, size - 1);
                     free (l);
                     strncat (str, "\\right)", size - 1);
@@ -203,6 +205,16 @@ char* node_to_str (const Node* pNode)
                     free (l);
                     strncat (str, "\\right)", size - 1);
                     break;
+                case EQUAL:
+                    PRINT_DEBUG ("I\'m seeing operation EQUAL\n");
+                    size = strlen (r) + strlen (l) + 4;
+                    str = (char*) calloc (size, sizeof (char));
+                    strcpy (str, r);
+                    strncat (str, " = ", size - 1);
+                    strncat (str, l, size - 1);
+                    free (l);
+                    break;
+
             }
     }
     PRINT_DEBUG ("str = %s\n", str)
